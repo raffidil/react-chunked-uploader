@@ -1,160 +1,118 @@
-# DTS React User Guide
+![NPM](https://img.shields.io/badge/NPM-%23000000.svg?style=for-the-badge&logo=npm&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+[![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](./LICENSE)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Yarn](https://img.shields.io/badge/yarn-%232C8EBB.svg?style=for-the-badge&logo=yarn&logoColor=white)
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with DTS. Let’s get you oriented with what’s here and how to use it.
+# React Chunked Uploader
 
-> This DTS setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+> A react hook for uploading large files that need chunking (for example for [uploading to Cloudinary](https://support.cloudinary.com/hc/en-us/articles/208263735-Guidelines-for-self-implementing-chunked-upload-to-Cloudinary)). It uses `axios` and provides loading state and progress value.
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+<!-- ## Getting Started -->
 
-## Commands
+<!-- These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. -->
 
-DTS scaffolds your new library inside `/src`, and also sets up a [Vite-based](https://vitejs.dev) playground for it inside `/example`.
+## Installation
 
-The recommended workflow is to run DTS in one terminal:
-
-```bash
-npm start # or yarn start
+```sh
+yarn add react-chunked-uploader
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+or
 
-Then run the example inside another:
-
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+```sh
+npm i react-chunked-uploader
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure DTS is running in watch mode like we recommend above. 
+## Usage
 
-To do a one-off build, use `npm run build` or `yarn build`.
+Import the hook from the package:
 
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle analysis
-
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  index.test.tsx  # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
+```ts
+import useChunkedUploader from 'react-chunked-uploader';
 ```
 
-#### React Testing Library
+Into your React component:
 
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
+```ts
+const { uploadFile, cancelUpload, isLoading, progress } = useChunkedUploader();
 
-### Rollup
+const uploadImage = async (file: File, data: FormData) => {
+  try {
+    const result = await uploadFile({ file, url: 'YOUR_UPLOAD_URL', data });
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
+};
+```
 
-DTS uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+## API
 
-### TypeScript
+### uploadFile
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### GitHub Actions
-
-Two actions are added by default:
-
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
-
-## Optimizations
-
-Please see the main `dts` [optimizations docs](https://github.com/weiran-zsd/dts-cli#optimizations). In particular, know that you can take advantage of development-only optimizations:
+A function to upload a file with specific form data.
 
 ```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
-}
+uploadFile({ file, url, data, chunkSize });
 ```
 
-You can also choose to install and use [invariant](https://github.com/weiran-zsd/dts-cli#invariant) and [warning](https://github.com/weiran-zsd/dts-cli#warning) functions.
+#### Options:
 
-## Module Formats
+| Name        | Type           | Required | Default value     |
+| ----------- | -------------- | -------- | ----------------- |
+| `file`      | File           | yes      | -                 |
+| `url`       | string         | yes      | -                 |
+| `data`      | FormData       | no       | -                 |
+| `chunkSize` | number (Bytes) | no       | 6 \* 1024 \* 1024 |
 
-CJS, ESModules, and UMD module formats are supported.
+#### Return type:
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
-## Deploying the Example Playground
-
-The Playground is just a simple [Vite](https://vitejs.dev) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
-
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
+```ts
+Promise<AxiosResponse[]>;
 ```
 
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
+### isLoading
 
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
-```
+A boolean that indicates the loading status of the uploading data.
 
-## Named Exports
+| Name        | Type    | Default value |
+| ----------- | ------- | ------------- |
+| `isLoading` | boolean | false         |
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+### progress
 
-## Including Styles
+A number that indicates the progress value of the uploading process.
 
-There are many ways to ship styles, including with CSS-in-JS. DTS has no opinion on this, configure how you like.
+| Name       | Type   | Default value |
+| ---------- | ------ | ------------- |
+| `progress` | number | 0             |
 
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
+### cancelUpload
 
-## Publishing to NPM
+A function to cancel upload operation.
 
-We recommend using [np](https://github.com/sindresorhus/np).
+| Name           | Type       |
+| -------------- | ---------- |
+| `cancelUpload` | () => void |
 
-## Usage with Lerna
+## Contributing
 
-When creating a new package with DTS within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
+1.  Fork it!
+2.  Create your feature branch: `git checkout -b my-new-feature`
+3.  Add your changes: `git add .`
+4.  Commit your changes: `git commit -am 'Add some feature'`
+5.  Push to the branch: `git push origin my-new-feature`
+6.  Submit a pull request :sunglasses:
 
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
+## Versioning
 
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
+We use [SemVer](http://semver.org/) for versioning.
 
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
-```
+## Authors
 
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/formium/tsdx/issues/64)
+- **Raffi Dilanchian** - [raffidil](https://github.com/raffidil)
+
+## License
+
+[MIT License](./LICENSE) © Raffi Dilanchian
