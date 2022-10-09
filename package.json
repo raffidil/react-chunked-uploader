@@ -4,6 +4,7 @@
   "license": "MIT",
   "author": "Raffi Dilanchian",
   "main": "dist/index.js",
+  "homepage": "https://github.com/raffidil/react-chuked-uploader",
   "module": "dist/react-chunked-uploader.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
