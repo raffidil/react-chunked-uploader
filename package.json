@@ -1,6 +1,6 @@
 {
   "name": "react-chunked-uploader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "author": "Raffi Dilanchian",
   "main": "dist/index.js",
